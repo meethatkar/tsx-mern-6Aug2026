@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { debounce } from '../utils/debounce';
 
 interface NavbarProps {
   onSearchClickMobile?: (val) => void;
@@ -16,19 +17,14 @@ const Navbar: React.FC<NavbarProps> = ({ onSearchClickMobile, user }) => {
     onSearchClickMobile(searchVal);
   }, [searchVal]);
 
-  const timerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const debouncedSetSearchVal = React.useMemo(
+    () => debounce((value: string) => setSearchVal(value), 500),
+    []
+  );
 
-  const handleSearch = (e: any) => {
-    ;
-    const value = e.target.value;
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-    }
-    timerRef.current = setTimeout(() => {
-      console.log(typeof (e.target));
-      setSearchVal(value);
-    }, 500);
-  }
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    debouncedSetSearchVal(e.target.value);
+  };
 
 
   return (
@@ -78,12 +74,10 @@ const Navbar: React.FC<NavbarProps> = ({ onSearchClickMobile, user }) => {
 
           {/* User Profile Avatar (Present on both Mobile and Desktop) */}
           {(!isSearchOpen && (<button
-            className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-cyan-500/30 bg-slate-800 transition-transform active:scale-95 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+            className="relative flex h-10 w-10 items-center justify-center md:hidden"
             aria-label="User Profile"
           >
-            <div className="flex h-full w-full items-center justify-center bg-cyan-950 text-cyan-300 text-sm font-semibold">
-              {user?.name ? user.name.charAt(0).toUpperCase() : 'J'}
-            </div>
+            <img src="/menu.svg" alt="" className='h-5 w-5' />
           </button>))}
 
         </div>
