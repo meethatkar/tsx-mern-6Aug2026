@@ -18,6 +18,7 @@ interface FilterSidebarProps {
   onSpeciesChange: (value: string[]) => void;
   selectedFilms: string[];
   onFilmsChange: (value: string[]) => void;
+  onClose?: () => void;
 }
 
 const FilterSidebar: React.FC<FilterSidebarProps> = ({
@@ -29,6 +30,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
   onSpeciesChange,
   selectedFilms,
   onFilmsChange,
+  onClose,
 }) => {
   // Local immediate state for search input text
   const [prevSearchTerm, setPrevSearchTerm] = useState(searchTerm);
@@ -64,6 +66,20 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
 
   return (
     <div className="w-full rounded-2xl border border-slate-800 bg-slate-900/60 p-5 backdrop-blur-md">
+      {/* Mobile Top Header */}
+      {onClose && (
+        <div className="flex items-center justify-between mb-4 md:hidden">
+          <h2 className="text-lg font-bold text-white">Filters & Search</h2>
+          <button
+            onClick={onClose}
+            className="text-slate-400 hover:text-white text-xl p-1 focus:outline-none"
+            aria-label="Close filters"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
       {/* 1. Search Bar */}
       <div className="relative mb-6">
         <input
@@ -109,6 +125,16 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
         selectedValues={selectedFilms}
         onChange={onFilmsChange}
       />
+
+      {/* Mobile Search Button */}
+      {onClose && (
+        <button
+          onClick={onClose}
+          className="mt-6 w-full rounded-xl bg-cyan-500 py-3 text-center text-sm font-semibold text-slate-950 hover:bg-cyan-400 active:bg-cyan-600 transition-colors md:hidden focus:outline-none focus:ring-2 focus:ring-cyan-400"
+        >
+          Search
+        </button>
+      )}
     </div>
   );
 };
