@@ -1,13 +1,8 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { getAllCharacters } from '../services/Character.api';
 import type { Character } from '../types/character';
 
-interface PaginatedResponse {
-  count: number;
-  next: string | null;
-  previous: string | null;
-  results: Character[];
-}
+const ITEMS_PER_PAGE = 10;
 
 export const useCharacter = () => {
   const [characters, setCharacters] = useState<Character[]>([]);
@@ -16,22 +11,33 @@ export const useCharacter = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null | unknown>(null);
 
+  const allCharactersRef = useRef<Character[] | null>(null);
+
   const getCharacters = useCallback(async (page: number = 1) => {
     setLoading(true);
     setError(null);
     try {
-      const data: PaginatedResponse = await getAllCharacters(page);
-
-      // If api directly returns an array (some swapi forks), fallback safely
-      if (Array.isArray(data)) {
-        setCharacters(data);
-        setTotalPages(1);
-      } else {
-        setCharacters(data.results || []);
-        setTotalPages(Math.ceil((data.count || 0) / 10));
+      let dataToPaginate = allCharactersRef.current;
+      
+      if (!dataToPaginate) {
+        const data = await getAllCharacters(1);
+        if (Array.isArray(data)) {
+          dataToPaginate = data;
+          allCharactersRef.current = data;
+        } else {
+          dataToPaginate = [];
+        }
       }
 
-      setCurrentPage(page);
+      const calculatedTotalPages = Math.ceil(dataToPaginate.length / ITEMS_PER_PAGE) || 1;
+      const safePage = Math.max(1, Math.min(page, calculatedTotalPages));
+
+      const startIndex = (safePage - 1) * ITEMS_PER_PAGE;
+      const paginatedSlice = dataToPaginate.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+      setCharacters(paginatedSlice);
+      setTotalPages(calculatedTotalPages);
+      setCurrentPage(safePage);
     } catch (err: unknown) {
       setError(err || 'An unexpected error occurred.');
     } finally {
