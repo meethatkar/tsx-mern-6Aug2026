@@ -1,7 +1,7 @@
 import { api } from "../../../shared/utils/apiClient"
 
-export const getAllCharacters = async (pageNum) => {
-  const response = await api.get(`/people?page=${pageNum}`);
+export const getAllCharacters = async () => {
+  const response = await api.get("/people");
   return response.data;
 }
 

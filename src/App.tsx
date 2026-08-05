@@ -5,7 +5,7 @@ import Navbar from './shared/components/Navbar'
 const App = () => {
   return (
     <div>
-      <Navbar onSearchClickMobile={(val: string) => { }} />
+      <Navbar />
       <Outlet />
     </div>
   )

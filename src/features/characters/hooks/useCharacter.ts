@@ -1,6 +1,6 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useContext } from 'react';
 import { getAllCharacters } from '../services/Character.api';
-import type { Character } from '../types/character';
+import { CharacterContext } from '../character.context';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -26,16 +26,26 @@ const FILM_MAP: Record<string, string> = {
 };
 
 export const useCharacter = () => {
-  const [allCharacters, setAllCharacters] = useState<Character[]>([]);
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null | unknown>(null);
-
-  // Filter states
-  const [searchTerm, setSearchTerm] = useState<string>('');
-  const [selectedPlanets, setSelectedPlanets] = useState<string[]>([]);
-  const [selectedSpecies, setSelectedSpecies] = useState<string[]>([]);
-  const [selectedFilms, setSelectedFilms] = useState<string[]>([]);
+  const {
+    allCharacters,
+    setAllCharacters,
+    currentPage,
+    setCurrentPage,
+    loading,
+    setLoading,
+    error,
+    setError,
+    searchTerm,
+    setSearchTerm,
+    selectedPlanets,
+    setSelectedPlanets,
+    selectedSpecies,
+    setSelectedSpecies,
+    selectedFilms,
+    setSelectedFilms,
+    isMenuOpen,
+    setIsMenuOpen,
+  } = useContext(CharacterContext);
 
   const getCharacters = useCallback(async (page: number = 1) => {
     setCurrentPage(page);
@@ -44,7 +54,7 @@ export const useCharacter = () => {
       setLoading(true);
       setError(null);
       try {
-        const data = await getAllCharacters(1);
+        const data = await getAllCharacters();
         setAllCharacters(data);
       } catch (err: unknown) {
         setError(err || 'An unexpected error occurred.');
@@ -52,7 +62,7 @@ export const useCharacter = () => {
         setLoading(false);
       }
     }
-  }, [allCharacters.length]);
+  }, [allCharacters.length, setCurrentPage, setLoading, setError, setAllCharacters]);
 
   // Synchronously compute the filtered character list
   const filteredCharacters = useMemo(() => {
@@ -124,22 +134,22 @@ export const useCharacter = () => {
   const changeSearchTerm = useCallback((val: string) => {
     setSearchTerm(val);
     setCurrentPage(1);
-  }, []);
+  }, [setSearchTerm, setCurrentPage]);
 
   const changeSelectedPlanets = useCallback((val: string[]) => {
     setSelectedPlanets(val);
     setCurrentPage(1);
-  }, []);
+  }, [setSelectedPlanets, setCurrentPage]);
 
   const changeSelectedSpecies = useCallback((val: string[]) => {
     setSelectedSpecies(val);
     setCurrentPage(1);
-  }, []);
+  }, [setSelectedSpecies, setCurrentPage]);
 
   const changeSelectedFilms = useCallback((val: string[]) => {
     setSelectedFilms(val);
     setCurrentPage(1);
-  }, []);
+  }, [setSelectedFilms, setCurrentPage]);
 
   return {
     characters,
@@ -156,5 +166,7 @@ export const useCharacter = () => {
     setSelectedSpecies: changeSelectedSpecies,
     selectedFilms,
     setSelectedFilms: changeSelectedFilms,
+    isMenuOpen,
+    setIsMenuOpen,
   };
 };

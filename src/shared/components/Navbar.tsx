@@ -1,29 +1,34 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { debounce } from '../utils/debounce';
+import { CharacterContext } from '../../features/characters/character.context';
 
 interface NavbarProps {
-  onSearchClickMobile?: (val) => void;
   user?: {
     name: string;
     avatarUrl?: string;
   };
 }
 
-const Navbar: React.FC<NavbarProps> = ({ onSearchClickMobile, user }) => {
+const Navbar: React.FC<NavbarProps> = () => {
+  const { searchTerm, setSearchTerm, setIsMenuOpen } = useContext(CharacterContext);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [searchVal, setSearchVal] = useState(null);
+  const [localSearch, setLocalSearch] = useState(searchTerm);
+  const [prevSearchTerm, setPrevSearchTerm] = useState(searchTerm);
 
-  useEffect(() => {
-    onSearchClickMobile(searchVal);
-  }, [searchVal]);
+  if (searchTerm !== prevSearchTerm) {
+    setPrevSearchTerm(searchTerm);
+    setLocalSearch(searchTerm);
+  }
 
-  const debouncedSetSearchVal = React.useMemo(
-    () => debounce((value: string) => setSearchVal(value), 500),
-    []
+  const debouncedSetSearchTerm = React.useMemo(
+    () => debounce((value: string) => setSearchTerm(value), 500),
+    [setSearchTerm]
   );
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    debouncedSetSearchVal(e.target.value);
+    const val = e.target.value;
+    setLocalSearch(val);
+    debouncedSetSearchTerm(val);
   };
 
 
@@ -57,6 +62,7 @@ const Navbar: React.FC<NavbarProps> = ({ onSearchClickMobile, user }) => {
             <div className="flex items-center gap-2 transition-all">
               <input
                 type="text"
+                value={localSearch}
                 placeholder="Search..."
                 className="h-10 w-32 sm:w-48 min-w-0 rounded-full border border-cyan-500/50 bg-slate-900/80 px-4 text-sm text-white placeholder:text-slate-500 focus:outline-none md:hidden"
                 autoFocus
@@ -73,12 +79,15 @@ const Navbar: React.FC<NavbarProps> = ({ onSearchClickMobile, user }) => {
           )}
 
           {/* User Profile Avatar (Present on both Mobile and Desktop) */}
-          {(!isSearchOpen && (<button
-            className="relative flex h-10 w-10 items-center justify-center md:hidden"
-            aria-label="User Profile"
-          >
-            <img src="/menu.svg" alt="" className='h-5 w-5' />
-          </button>))}
+          {(!isSearchOpen && (
+            <button
+              onClick={() => setIsMenuOpen((prev) => !prev)}
+              className="relative flex h-10 w-10 items-center justify-center md:hidden"
+              aria-label="Filter characters"
+            >
+              <img src="/menu.svg" alt="" className='h-5 w-5' />
+            </button>
+          ))}
 
         </div>
 

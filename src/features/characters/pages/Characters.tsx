@@ -25,6 +25,8 @@ const Characters: React.FC<CharactersProps> = ({ onSelectCharacter }) => {
     setSelectedSpecies,
     selectedFilms,
     setSelectedFilms,
+    isMenuOpen,
+    setIsMenuOpen,
   } = useCharacter();
 
   useEffect(() => {
@@ -36,7 +38,7 @@ const Characters: React.FC<CharactersProps> = ({ onSelectCharacter }) => {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
 
         {/* Sidebar Reserved for Search & Filters */}
-        <aside className="lg:col-span-1 order-last lg:order-first">
+        <aside className={isMenuOpen ? "fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md p-4 overflow-y-auto block" : "hidden lg:block lg:col-span-1 lg:order-first"}>
           <FilterSidebar
             searchTerm={searchTerm}
             onSearchChange={setSearchTerm}
@@ -46,6 +48,7 @@ const Characters: React.FC<CharactersProps> = ({ onSelectCharacter }) => {
             onSpeciesChange={setSelectedSpecies}
             selectedFilms={selectedFilms}
             onFilmsChange={setSelectedFilms}
+            onClose={() => setIsMenuOpen(false)}
           />
         </aside>
 
