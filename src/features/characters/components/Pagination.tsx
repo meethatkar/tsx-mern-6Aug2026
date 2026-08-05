@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactPaginate from 'react-paginate';
 
 interface PaginationProps {
   currentPage: number;
@@ -13,30 +14,33 @@ const Pagination: React.FC<PaginationProps> = ({
   onPageChange,
   disabled = false,
 }) => {
+  if (totalPages <= 1) return null;
+
+  const PaginateComponent = (ReactPaginate as any).default || ReactPaginate;
+
   return (
-    <div className="flex items-center justify-center gap-4 py-6">
-      <button
-        onClick={() => onPageChange(currentPage - 1)}
-        disabled={currentPage === 1 || disabled}
-        className="px-4 py-2 text-sm font-medium rounded-lg bg-slate-800 text-white 
-                   hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-      >
-        Previous
-      </button>
-
-      <span className="text-sm text-slate-300">
-        Page <span className="font-semibold text-white">{currentPage}</span> of{' '}
-        <span className="font-semibold text-white">{totalPages}</span>
-      </span>
-
-      <button
-        onClick={() => onPageChange(currentPage + 1)}
-        disabled={currentPage === totalPages || disabled}
-        className="px-4 py-2 text-sm font-medium rounded-lg bg-slate-800 text-white 
-                   hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-      >
-        Next
-      </button>
+    <div className={`flex justify-center py-6 ${disabled ? 'opacity-50 pointer-events-none' : ''}`}>
+      <PaginateComponent
+        breakLabel="..."
+        nextLabel="Next"
+        previousLabel="Previous"
+        pageRangeDisplayed={3}
+        marginPagesDisplayed={1}
+        pageCount={totalPages}
+        forcePage={currentPage - 1}
+        onPageChange={(selectedItem: any) => {
+          if (!disabled) {
+            onPageChange(selectedItem.selected + 1);
+          }
+        }}
+        containerClassName="flex items-center gap-2"
+        pageLinkClassName="px-3 py-1.5 text-sm font-medium rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition-colors cursor-pointer"
+        activeLinkClassName="bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 hover:bg-cyan-500/30"
+        previousLinkClassName="px-3 py-1.5 text-sm font-medium rounded-lg bg-slate-800 text-white hover:bg-slate-700 transition-colors cursor-pointer"
+        nextLinkClassName="px-3 py-1.5 text-sm font-medium rounded-lg bg-slate-800 text-white hover:bg-slate-700 transition-colors cursor-pointer"
+        disabledLinkClassName="opacity-50 cursor-not-allowed"
+        breakLinkClassName="px-2 text-slate-400"
+      />
     </div>
   );
 };

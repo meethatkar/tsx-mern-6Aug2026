@@ -43,7 +43,7 @@ const Characters: React.FC<CharactersProps> = ({ onSelectCharacter }) => {
               <Pagination
                 currentPage={currentPage}
                 totalPages={totalPages}
-                onPageChange={getCharacters}
+                onPageChange={(page) => getCharacters(page)}
                 disabled={loading}
               />
             </div>
