@@ -1,8 +1,15 @@
 import React from 'react'
+import { Outlet } from 'react-router-dom'
+import Navbar from './shared/components/Navbar'
 
 const App = () => {
   return (
-    <div className='text-5xl text-red-500'>App</div>
+    <div>
+      <Navbar onSearchClickMobile={(val: string) => {
+        console.log("SETING :", val);
+      }} />
+      <Outlet />
+    </div>
   )
 }
 
