@@ -44,3 +44,13 @@ export const getFilterData = async (): Promise<FilterData> => {
 
   return cachedFilterData;
 };
+
+export const getPlanetDetails = async (url: string) => {
+  const response = await axios.get(url);
+  return response.data;
+};
+
+export const getFilmDetails = async (url: string) => {
+  const response = await axios.get(url);
+  return response.data;
+};

@@ -1,5 +1,5 @@
 import { createContext, useState, type ReactNode, type Dispatch, type SetStateAction } from "react";
-import type { Character } from "./types/character";
+import type { Character, PopupData } from "./types/character";
 import type { FilterItem } from "./services/Character.api";
 
 interface CharacterContextType {
@@ -27,6 +27,10 @@ interface CharacterContextType {
   setPlanets: (planets: FilterItem[]) => void;
   setSpecies: (species: FilterItem[]) => void;
   setFilms: (films: FilterItem[]) => void;
+  planetCache: PopupData['homeworld'] | null;
+  setplanetCache: Dispatch<SetStateAction<PopupData['homeworld'] | null>>;
+  flimCache: string[] | null;
+  setflimCache: Dispatch<SetStateAction<string[] | null>>;
 }
 
 export const CharacterContext = createContext<CharacterContextType>({} as CharacterContextType);
@@ -59,6 +63,8 @@ export const CharacterProvider = ({ children }: { children: ReactNode }) => {
   const [selectedSpecies, setSelectedSpecies] = useState<string[]>([]);
   const [selectedFilms, setSelectedFilms] = useState<string[]>([]);
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
+  const [planetCache, setplanetCache] = useState<PopupData['homeworld'] | null>(null);
+  const [flimCache, setflimCache] = useState<string[] | null>(null);
 
   return (
     <CharacterContext.Provider
@@ -87,6 +93,10 @@ export const CharacterProvider = ({ children }: { children: ReactNode }) => {
         setPlanets,
         setSpecies,
         setFilms,
+        planetCache,
+        setplanetCache,
+        flimCache,
+        setflimCache,
       }}
     >
       {children}

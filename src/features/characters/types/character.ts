@@ -32,3 +32,15 @@ export interface FormattedCharacterModalData {
   filmsCount: number;
   birthYear: string;
 }
+
+export interface PopupData {
+  homeworld: {
+    name: string;
+    terrain: string;
+    climate: string;
+    residents: number;
+  } | null;
+  films: string[];
+  loading: boolean;
+  error: string | null;
+}
