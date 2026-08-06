@@ -1,15 +1,16 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import CharacterCard from '../components/CharacterCard';
 import Pagination from '../components/Pagination';
 import FilterSidebar from '../components/FilterSidebar';
 import { useCharacter } from '../hooks/useCharacter';
 import type { Character } from '../types/character';
+import CharacterModalCard from '../components/PopupModel';
 
 interface CharactersProps {
   onSelectCharacter?: (character: Character) => void;
 }
 
-const Characters: React.FC<CharactersProps> = ({ onSelectCharacter }) => {
+const Characters: React.FC<CharactersProps> = () => {
   const {
     getCharacters,
     characters,
@@ -35,6 +36,12 @@ const Characters: React.FC<CharactersProps> = ({ onSelectCharacter }) => {
   useEffect(() => {
     getCharacters(1);
   }, [getCharacters]);
+
+  const [selectedCharacter, setselectedCharacter] = useState<Character | null>(null);
+
+  const onSelectCharacter = (character: Character) => {
+    setselectedCharacter(character);
+  };
 
   return (
     <main className="w-full max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
@@ -67,7 +74,7 @@ const Characters: React.FC<CharactersProps> = ({ onSelectCharacter }) => {
               </p>
             </div>
           )}
-          
+
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
             {characters && characters.length > 0 ? (
               characters.map((data) => (
@@ -83,7 +90,7 @@ const Characters: React.FC<CharactersProps> = ({ onSelectCharacter }) => {
               </div>
             )}
           </div>
-          
+
           {/* Pagination Controls */}
           {totalPages > 1 && (
             <div className="mt-8">
@@ -98,6 +105,10 @@ const Characters: React.FC<CharactersProps> = ({ onSelectCharacter }) => {
         </section>
 
       </div>
+
+      {selectedCharacter && (
+        <CharacterModalCard onClose={() => setselectedCharacter(null)} character={selectedCharacter} />
+      )}
     </main>
   );
 };
