@@ -9,12 +9,12 @@ An interactive, premium database registry (Holocron) for exploring Star Wars cha
 ### Desktop View
 | Homepage Registry | Character Details Portal |
 | :---: | :---: |
-| ![Desktop Homepage](image.png) | ![Desktop Popup](image-1.png) |
+| ![Desktop Homepage](/image.png) | ![Desktop Popup](/image-1.png) |
 
 ### Mobile View
 | Mobile Registry | Mobile Details Portal | Mobile Filter Drawer |
 | :---: | :---: | :---: |
-| ![Mobile Homepage](image-2.png) | ![Mobile Popup](image-3.png) | ![Mobile Filters](image-4.png) |
+| ![Mobile Homepage](/image-2.png) | ![Mobile Popup](/image-3.png) | ![Mobile Filters](/image-4.png) |
 
 ---
 
