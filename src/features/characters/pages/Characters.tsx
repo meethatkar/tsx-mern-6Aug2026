@@ -27,6 +27,9 @@ const Characters: React.FC<CharactersProps> = ({ onSelectCharacter }) => {
     setSelectedFilms,
     isMenuOpen,
     setIsMenuOpen,
+    planets,
+    species,
+    films,
   } = useCharacter();
 
   useEffect(() => {
@@ -49,6 +52,9 @@ const Characters: React.FC<CharactersProps> = ({ onSelectCharacter }) => {
             selectedFilms={selectedFilms}
             onFilmsChange={setSelectedFilms}
             onClose={() => setIsMenuOpen(false)}
+            planets={planets}
+            species={species}
+            films={films}
           />
         </aside>
 

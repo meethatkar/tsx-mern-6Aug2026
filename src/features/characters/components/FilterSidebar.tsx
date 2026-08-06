@@ -2,7 +2,6 @@ import React, { useState, useMemo } from 'react';
 import FilterAccordion from './FilterAccordion';
 import { debounce } from '../../../shared/utils/debounce';
 
-// Mock Data for UI initial setup
 const MOCK_OPTIONS = {
   planets: ['Tatooine', 'Alderaan', 'Naboo', 'Coruscant'],
   species: ['Human', 'Droid', 'Wookiee', "Yoda's species"],
@@ -19,6 +18,9 @@ interface FilterSidebarProps {
   selectedFilms: string[];
   onFilmsChange: (value: string[]) => void;
   onClose?: () => void;
+  planets?: { url: string; name: string }[];
+  species?: { url: string; name: string }[];
+  films?: { url: string; name: string }[];
 }
 
 const FilterSidebar: React.FC<FilterSidebarProps> = ({
@@ -31,6 +33,9 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
   selectedFilms,
   onFilmsChange,
   onClose,
+  planets,
+  species,
+  films,
 }) => {
   // Local immediate state for search input text
   const [prevSearchTerm, setPrevSearchTerm] = useState(searchTerm);
@@ -55,14 +60,26 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
 
   // Accordion open/close states
   const [expanded, setExpanded] = useState({
-    homeworld: true,
-    species: true,
+    homeworld: false,
+    species: false,
     films: false,
   });
 
   const toggleAccordion = (key: keyof typeof expanded) => {
     setExpanded((prev) => ({ ...prev, [key]: !prev[key] }));
   };
+
+  const planetOptions = useMemo(() => {
+    return planets && planets.length > 0 ? planets.map((p) => p.name) : MOCK_OPTIONS.planets;
+  }, [planets]);
+
+  const speciesOptions = useMemo(() => {
+    return species && species.length > 0 ? species.map((s) => s.name) : MOCK_OPTIONS.species;
+  }, [species]);
+
+  const filmOptions = useMemo(() => {
+    return films && films.length > 0 ? films.map((f) => f.name) : MOCK_OPTIONS.films;
+  }, [films]);
 
   return (
     <div className="w-full rounded-2xl border border-slate-800 bg-slate-900/60 p-5 backdrop-blur-md">
@@ -101,7 +118,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
         title="Homeworld/planets"
         isOpen={expanded.homeworld}
         onToggle={() => toggleAccordion('homeworld')}
-        options={MOCK_OPTIONS.planets}
+        options={planetOptions}
         selectedValues={selectedPlanets}
         onChange={onPlanetsChange}
       />
@@ -111,7 +128,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
         title="Species"
         isOpen={expanded.species}
         onToggle={() => toggleAccordion('species')}
-        options={MOCK_OPTIONS.species}
+        options={speciesOptions}
         selectedValues={selectedSpecies}
         onChange={onSpeciesChange}
       />
@@ -121,7 +138,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
         title="Films"
         isOpen={expanded.films}
         onToggle={() => toggleAccordion('films')}
-        options={MOCK_OPTIONS.films}
+        options={filmOptions}
         selectedValues={selectedFilms}
         onChange={onFilmsChange}
       />
