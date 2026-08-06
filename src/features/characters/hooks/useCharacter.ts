@@ -1,6 +1,8 @@
-import { useCallback, useMemo, useContext } from 'react';
+import { useCallback, useMemo, useContext, useEffect } from 'react';
 import { getAllCharacters, getFilterData } from '../services/Character.api';
 import { CharacterContext } from '../character.context';
+import { preloadImagesInChunks } from '../../../shared/utils/imagePreloader';
+import type { Character } from '../types/character';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -55,6 +57,12 @@ export const useCharacter = () => {
         setPlanets(filterDataRes.planets);
         setSpecies(filterDataRes.species);
         setFilms(filterDataRes.films);
+
+        // Prefetch all character images in background chunks
+        const allUrls = charactersData.map((char: Character) =>
+          `https://picsum.photos/400/300?random=${encodeURIComponent(char.name)}`
+        );
+        preloadImagesInChunks(allUrls, 3, 1000);
       } catch (err: unknown) {
         setError(err || 'An unexpected error occurred.');
       } finally {
@@ -141,6 +149,21 @@ export const useCharacter = () => {
     */
     return filteredCharacters.slice(startIndex, startIndex + ITEMS_PER_PAGE);
   }, [filteredCharacters, safePage]);
+
+  // Preload the next page's images immediately when the page or filters change
+  useEffect(() => {
+    if (filteredCharacters.length === 0) return;
+    const nextPage = safePage + 1;
+    if (nextPage <= totalPages) {
+      const nextStartIndex = (nextPage - 1) * ITEMS_PER_PAGE;
+      const nextPageChars = filteredCharacters.slice(nextStartIndex, nextStartIndex + ITEMS_PER_PAGE);
+      const nextPageUrls = nextPageChars.map(char =>
+        `https://picsum.photos/400/300?random=${encodeURIComponent(char.name)}`
+      );
+      // Preload next page's images immediately
+      preloadImagesInChunks(nextPageUrls, ITEMS_PER_PAGE, 0);
+    }
+  }, [safePage, filteredCharacters, totalPages]);
 
   // Helper setters that also reset the page to 1
   const changeSearchTerm = useCallback((val: string) => {
