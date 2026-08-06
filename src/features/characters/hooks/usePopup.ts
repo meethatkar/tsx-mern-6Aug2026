@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useContext, useCallback } from "react";
 import { CharacterContext } from "../character.context";
 import { getFilmDetails, getPlanetDetails } from "../services/Character.api";

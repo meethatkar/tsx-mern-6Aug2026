@@ -9,8 +9,8 @@ interface CharacterContextType {
   setCurrentPage: Dispatch<SetStateAction<number>>;
   loading: boolean;
   setLoading: Dispatch<SetStateAction<boolean>>;
-  error: string | null | unknown;
-  setError: Dispatch<SetStateAction<string | null | unknown>>;
+  error: string | null | any;
+  setError: Dispatch<SetStateAction<string | null | any>>;
   searchTerm: string;
   setSearchTerm: Dispatch<SetStateAction<string>>;
   selectedPlanets: string[];
