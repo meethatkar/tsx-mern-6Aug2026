@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import { debounce } from '../utils/debounce';
 import { CharacterContext } from '../../features/characters/character.context';
 

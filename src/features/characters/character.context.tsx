@@ -1,5 +1,6 @@
 import { createContext, useState, type ReactNode, type Dispatch, type SetStateAction } from "react";
 import type { Character } from "./types/character";
+import type { FilterItem } from "./services/Character.api";
 
 interface CharacterContextType {
   allCharacters: Character[];
@@ -20,9 +21,33 @@ interface CharacterContextType {
   setSelectedFilms: Dispatch<SetStateAction<string[]>>;
   isMenuOpen: boolean;
   setIsMenuOpen: Dispatch<SetStateAction<boolean>>;
+  planets: FilterItem[];
+  species: FilterItem[];
+  films: FilterItem[];
+  setPlanets: (planets: FilterItem[]) => void;
+  setSpecies: (species: FilterItem[]) => void;
+  setFilms: (films: FilterItem[]) => void;
 }
 
 export const CharacterContext = createContext<CharacterContextType>({} as CharacterContextType);
+
+// Static data stored at module level (no useState)
+let staticPlanets: FilterItem[] = [];
+let staticSpecies: FilterItem[] = [];
+let staticFilms: FilterItem[] = [];
+
+// Static setters defined outside the component to prevent recreating them on every render
+const setPlanets = (data: FilterItem[]) => {
+  staticPlanets = data;
+};
+
+const setSpecies = (data: FilterItem[]) => {
+  staticSpecies = data;
+};
+
+const setFilms = (data: FilterItem[]) => {
+  staticFilms = data;
+};
 
 export const CharacterProvider = ({ children }: { children: ReactNode }) => {
   const [allCharacters, setAllCharacters] = useState<Character[]>([]);
@@ -56,6 +81,12 @@ export const CharacterProvider = ({ children }: { children: ReactNode }) => {
         setSelectedFilms,
         isMenuOpen,
         setIsMenuOpen,
+        planets: staticPlanets,
+        species: staticSpecies,
+        films: staticFilms,
+        setPlanets,
+        setSpecies,
+        setFilms,
       }}
     >
       {children}

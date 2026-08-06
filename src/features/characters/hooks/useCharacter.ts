@@ -1,28 +1,13 @@
 import { useCallback, useMemo, useContext } from 'react';
-import { getAllCharacters } from '../services/Character.api';
+import { getAllCharacters, getFilterData } from '../services/Character.api';
 import { CharacterContext } from '../character.context';
 
 const ITEMS_PER_PAGE = 10;
 
-const PLANET_MAP: Record<string, string> = {
-  'Tatooine': 'planets/1',
-  'Alderaan': 'planets/2',
-  'Naboo': 'planets/8',
-  'Coruscant': 'planets/9'
-};
-
-const SPECIES_MAP: Record<string, string> = {
-  'Human': 'species/1',
-  'Droid': 'species/2',
-  'Wookiee': 'species/3',
-  "Yoda's species": 'species/6'
-};
-
-const FILM_MAP: Record<string, string> = {
-  'A New Hope': 'films/1',
-  'The Empire Strikes Back': 'films/2',
-  'Return of the Jedi': 'films/3',
-  'The Phantom Menace': 'films/4'
+const getRelativePath = (url: string) => {
+  if (!url) return '';
+  const match = url.match(/(planets|species|films)\/\d+/);
+  return match ? match[0] : url;
 };
 
 export const useCharacter = () => {
@@ -45,24 +30,38 @@ export const useCharacter = () => {
     setSelectedFilms,
     isMenuOpen,
     setIsMenuOpen,
+    planets,
+    species,
+    films,
+    setPlanets,
+    setSpecies,
+    setFilms,
   } = useContext(CharacterContext);
 
   const getCharacters = useCallback(async (page: number = 1) => {
     setCurrentPage(page);
+    console.log("PG ", page);
 
     if (allCharacters.length === 0) {
       setLoading(true);
       setError(null);
       try {
-        const data = await getAllCharacters();
-        setAllCharacters(data);
+        const [charactersData, filterDataRes] = await Promise.all([
+          getAllCharacters(),
+          getFilterData()
+        ]);
+
+        setAllCharacters(charactersData);
+        setPlanets(filterDataRes.planets);
+        setSpecies(filterDataRes.species);
+        setFilms(filterDataRes.films);
       } catch (err: unknown) {
         setError(err || 'An unexpected error occurred.');
       } finally {
         setLoading(false);
       }
     }
-  }, [allCharacters.length, setCurrentPage, setLoading, setError, setAllCharacters]);
+  }, [allCharacters.length, setCurrentPage, setLoading, setError, setAllCharacters, setPlanets, setSpecies, setFilms]);
 
   // Synchronously compute the filtered character list
   const filteredCharacters = useMemo(() => {
@@ -75,44 +74,53 @@ export const useCharacter = () => {
     }
 
     // 2. Homeworld filter
-    if (selectedPlanets.length > 0) {
-      filtered = filtered.filter(char =>
-        char.homeworld && selectedPlanets.some(planet => {
-          const planetPath = PLANET_MAP[planet];
-          return planetPath && char.homeworld.includes(planetPath);
-        })
-      );
+    if (selectedPlanets.length > 0 && planets.length > 0) {
+      filtered = filtered.filter(char => {
+        if (!char.homeworld) return false;
+        return selectedPlanets.some(planetName => {
+          const planetObj = planets.find(p => p.name === planetName);
+          //PlanetName = filter dropdown slected option, p.name = backend api call list of planets
+          return planetObj && getRelativePath(char.homeworld) === getRelativePath(planetObj.url);
+        });
+      });
     }
 
     // 3. Species filter
-    if (selectedSpecies.length > 0) {
-      filtered = filtered.filter(char =>
-        char.species && char.species.some(s =>
-          selectedSpecies.some(spec => {
-            const speciesPath = SPECIES_MAP[spec];
-            return speciesPath && s.includes(speciesPath);
+    if (selectedSpecies.length > 0 && species.length > 0) {
+      filtered = filtered.filter(char => {
+        const charSpecies = char.species;
+        if (charSpecies.length === 0) {
+          return selectedSpecies.includes('Human');
+        }
+        return charSpecies.some(s =>
+          selectedSpecies.some(specName => {
+            const specObj = species.find(sp => sp.name === specName);
+            //specName = filter dropdown selected option, sp.name = backend api call list of planets
+            return specObj && getRelativePath(s) === getRelativePath(specObj.url);
           })
-        )
-      );
+        );
+      });
     }
 
     // 4. Films filter
-    if (selectedFilms.length > 0) {
+    if (selectedFilms.length > 0 && films.length > 0) {
       filtered = filtered.filter(char =>
         char.films && char.films.some(f =>
-          selectedFilms.some(film => {
-            const filmPath = FILM_MAP[film];
-            return filmPath && f.includes(filmPath);
+          selectedFilms.some(filmTitle => {
+            const filmObj = films.find(fl => fl.name === filmTitle);
+            return filmObj && getRelativePath(f) === getRelativePath(filmObj.url);
           })
         )
       );
     }
 
     return filtered;
-  }, [allCharacters, searchTerm, selectedPlanets, selectedSpecies, selectedFilms]);
+  }, [allCharacters, searchTerm, selectedPlanets, selectedSpecies, selectedFilms, planets, species, films]);
 
   // Calculate total pages from the filtered result
   const totalPages = useMemo(() => {
+    console.log("RAN PAGE");
+
     return Math.ceil(filteredCharacters.length / ITEMS_PER_PAGE) || 1;
   }, [filteredCharacters.length]);
 
@@ -127,6 +135,10 @@ export const useCharacter = () => {
   // Slice the filtered results for the current page
   const characters = useMemo(() => {
     const startIndex = (safePage - 1) * ITEMS_PER_PAGE;
+    /*
+    * eg: (1-1)*10 = 0*10 = 0 ;; (2-1)*10 = 1*10 = 10 ;; (3-1)*10 = 2*10 = 20 ;;
+    * explanation: from data 1st item's index is 0 for that page ;; from data 1st item's index is 10 for that page  ;; from data 1st item's index is 20 for that page
+    */
     return filteredCharacters.slice(startIndex, startIndex + ITEMS_PER_PAGE);
   }, [filteredCharacters, safePage]);
 
@@ -168,5 +180,8 @@ export const useCharacter = () => {
     setSelectedFilms: changeSelectedFilms,
     isMenuOpen,
     setIsMenuOpen,
+    planets,
+    species,
+    films,
   };
 };
